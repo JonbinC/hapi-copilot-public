@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="color-scheme" content="light dark"/>
+<title>HAPI Agent Console</title>
+<style>
+:root{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color-scheme:light dark;--bg:#fafafa;--panel:#fff;--fg:#1d232b;--muted:#637084;--line:#dce1e8;--sub:#f4f6f8;--accent:#3267b5;--good:#2d906b;--warn:#a27826}
+@media(prefers-color-scheme:dark){:root{--bg:#12151b;--panel:#1a1f28;--fg:#e6ebf3;--muted:#9ca9ba;--line:#303948;--sub:#222935;--accent:#91baff;--good:#73c69e;--warn:#efc17b}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-size:13px}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1100px;margin:auto;padding:16px}.heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.title{font-size:17px;font-weight:730;letter-spacing:-.015em}.sub{color:var(--muted);margin-top:4px;font-size:11px}.refresh{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:9px 12px;color:var(--fg)}.stats{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px;color:var(--muted);flex:1;min-width:92px}.stat b{font-size:17px;color:var(--fg);display:block}.layout{display:grid;grid-template-columns:minmax(240px,0.93fr) minmax(270px,1.25fr);gap:12px}.pane{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;min-height:360px}.pane-head{padding:12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:600}.search{border:1px solid var(--line);background:var(--sub);border-radius:7px;padding:8px;color:var(--fg);width:100%;margin-top:9px}.filter{padding:0 12px 12px}.list{max-height:430px;overflow:auto}.agent{width:100%;border:0;border-bottom:1px solid var(--line);text-align:left;background:transparent;padding:11px 12px;display:flex;gap:9px;color:var(--fg)}.agent:hover,.agent.active{background:var(--sub)}.agentname{font-weight:650;line-height:1.35;overflow-wrap:anywhere}.meta{font-size:11px;color:var(--muted);margin-top:5px;overflow-wrap:anywhere}.dot{width:8px;height:8px;background:#9aa4b2;border-radius:100%;flex:none;margin-top:4px}.dot.on{background:var(--good)}.dot.thinking{background:var(--accent)}.badge{font-size:10px;padding:2px 6px;border-radius:6px;background:var(--sub);color:var(--muted)}.detail{padding:12px;max-height:570px;overflow:auto}.empty{color:var(--muted);padding:25px;text-align:center}.detail-name{font-weight:650;font-size:15px;overflow-wrap:anywhere}.label{font-size:10px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin:13px 0 6px}.line{font-size:12px;line-height:1.5}.line small{color:var(--muted);font-size:11px}.event{border-left:2px solid var(--line);padding:8px 10px;margin:6px 0;background:var(--sub);border-radius:0 7px 7px 0;overflow-wrap:anywhere}.event strong{font-size:11px}.event .info{font-size:11px;color:var(--muted);margin-bottom:4px}.event pre{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;margin:4px 0}.status{color:var(--muted);font-size:11px}.error{color:#bb3b40}.footer{margin-top:10px;font-size:11px;color:var(--muted)}@media(max-width:680px){.layout{grid-template-columns:1fr}.pane{min-height:200px}.list{max-height:235px}.detail{max-height:430px}.wrap{padding:10px}}
+
+textarea{font:inherit;width:100%;min-height:80px;resize:vertical;border:1px solid var(--line);background:var(--sub);color:var(--fg);border-radius:7px;padding:9px}select{width:100%;padding:8px;border:1px solid var(--line);border-radius:7px;background:var(--sub);color:var(--fg)}label.field{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}.tasks-panel{margin-top:14px}.task-row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:10px 12px;align-items:center}.task-title{font-weight:650}.task-actions{display:flex;gap:5px;flex-wrap:wrap}.task-actions button{padding:5px 8px}.forms{display:grid;grid-template-columns:1fr 1fr;gap:15px;padding:12px}.form-card{min-width:0;border:1px solid var(--line);border-radius:10px;padding:12px}.action-primary{background:var(--accent);border:0;color:white;border-radius:8px;padding:9px 12px;margin-top:12px}.action-primary:disabled{opacity:.5;cursor:not-allowed}.check{display:flex;gap:7px;align-items:flex-start;margin-top:12px;line-height:1.45}.check input{margin-top:2px}.task-output{margin:12px;white-space:pre-wrap;font:11px/1.5 ui-monospace,monospace;max-height:240px;overflow:auto;overflow-wrap:anywhere;background:var(--sub);padding:10px;border-radius:8px}.safety-banner{padding:9px 12px;background:var(--sub);color:var(--muted);line-height:1.5}.task-empty{padding:16px;color:var(--muted)}details summary{cursor:pointer;padding:12px;font-weight:650}.compact-input{width:100%;padding:8px;border:1px solid var(--line);border-radius:7px;background:var(--sub);color:var(--fg)}.decision-form{padding:12px;display:grid;gap:8px}.decision-form[hidden]{display:none} @media(max-width:680px){.forms{grid-template-columns:1fr}.task-row{align-items:flex-start;flex-direction:column}}body{padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="heading"><div><div class="title">HAPI Agent Console</div><div class="sub">Inspect sessions, delegate bounded tasks, and review evidence. Writes require authorization.</div></div><button class="refresh" id="refresh">↻ Refresh</button></div>
+ <div class="stats"><div class="stat"><b id="total">—</b>Sessions</div><div class="stat"><b id="active">—</b>Active</div><div class="stat"><b id="pending">—</b>Pending requests</div></div>
+ <div class="layout"><section class="pane"><div class="pane-head"><span>Sessions</span><span class="status" id="load-status">Connecting…</span></div><div class="filter"><input class="search" type="search" id="filter" placeholder="Search project, model or workspace" aria-label="Filter sessions"/></div><div class="list" id="session-list"><div class="empty">Loading sessions…</div></div></section><section class="pane"><div class="pane-head"><span>Activity &amp; changes</span><span class="badge" id="selected-badge">No selection</span></div><div class="detail" id="details"><div class="empty">Select a session to inspect its recent messages, tools and Git changes.</div></div></section></div>
+
+<section class="pane tasks-panel">
+ <div class="pane-head"><span>Tasks &amp; independent reviews</span><button class="refresh" id="refresh-tasks">Refresh tasks</button></div>
+ <div class="safety-banner" id="write-state">Checking local dispatch policy...</div>
+ <div id="task-list"><div class="task-empty">No ledger loaded.</div></div>
+ <pre class="task-output" id="task-output" hidden></pre>
+ <details id="task-compose"><summary>Delegate a task or request a review</summary>
+ <div class="forms">
+ <form class="form-card" id="send-form"><b>New task</b>
+ <label class="field" for="task-target">Authorized execution session</label><select id="task-target" required></select>
+ <label class="field" for="task-title">Title</label><input class="compact-input" id="task-title" maxlength="180" required/>
+ <label class="field" for="task-instructions">Objective and scope</label><textarea id="task-instructions" maxlength="16000" required></textarea>
+ <label class="field" for="task-criteria">Acceptance criteria (one per line)</label><textarea id="task-criteria" required></textarea>
+ <label class="field" for="task-outputs">Expected artifacts (one per line)</label><textarea id="task-outputs" required></textarea>
+ <label class="check"><input type="checkbox" id="task-confirm" required/><span>I authorize this session to perform this task within its existing workspace and permission controls. It may use quota and change files.</span></label>
+ <button class="action-primary" id="send-button" type="submit" disabled>Send task</button>
+ </form>
+ <form class="form-card" id="review-form"><b>Independent review</b>
+ <label class="field" for="review-source">Execution task</label><select id="review-source" required></select>
+ <label class="field" for="review-target">Authorized reviewer session (not the author)</label><select id="review-target" required></select>
+ <label class="field" for="review-focus">What must be checked?</label><textarea id="review-focus" maxlength="8000" required></textarea>
+ <label class="field" for="review-evidence">Evidence references: commit, report or message ID (one per line)</label><textarea id="review-evidence" required></textarea>
+ <label class="check"><input type="checkbox" id="review-confirm" required/><span>I authorize a review assignment. Review-only instructions are not a sandbox; reviewer permissions are managed in HAPI / the operating system.</span></label>
+ <button class="action-primary" id="review-button" type="submit" disabled>Request review</button>
+ </form>
+ </div></details>
+ <form class="decision-form" id="decision-form" hidden>
+ <b id="decision-title">Record decision</b>
+ <select id="decision-verdict" aria-label="Decision"><option value="changes_requested">Changes requested</option><option value="accepted">Accepted after checking evidence</option><option value="rejected">Rejected</option></select>
+ <textarea id="decision-rationale" placeholder="Your rationale, not an agent's assertion" required></textarea>
+ <textarea id="decision-evidence" placeholder="Evidence references, one per line" required></textarea>
+ <label class="check"><input id="decision-confirm" type="checkbox" required/><span>I have checked the evidence and authorize recording this decision.</span></label>
+ <button class="action-primary" type="submit">Record decision</button>
+ </form>
+</section>
+ <div class="footer" id="updated">Sources: HAPI Hub API. This view is a snapshot; agent statements are not proof of successful tests.</div>
+</div>
+<script type="module">
+// MCP Apps (2026-01-26) host bridge. No credentials or network URLs in the iframe.
+const state={sessions:[],selected:null,loading:false,bridge:false,tasks:[],policy:null,decisionTask:null};
+let reqId=0;const outstanding=new Map();
+const $=id=>document.getElementById(id);
+const text=(tag,value,cls)=>{const el=document.createElement(tag);if(cls)el.className=cls;el.textContent=String(value??'');return el};
+const truncate=(s,max=1800)=>String(s??'').slice(0,max);
+function notify(method,params={}){window.parent.postMessage({jsonrpc:'2.0',method,params},'*')}
+function request(method,params){return new Promise((resolve,reject)=>{const id=++reqId;const timer=setTimeout(()=>{outstanding.delete(id);reject(new Error('The host did not answer this request.'))},20000);outstanding.set(id,{resolve,reject,timer});window.parent.postMessage({jsonrpc:'2.0',id,method,params},'*')})}
+function readToolResponse(obj){
+ const r=obj?.result??obj;
+ if(r?.structuredContent)return r.structuredContent;
+ const v=r?.content?.find?.(x=>x.type==='text')?.text;
+ if(!v)return {};
+ try{return JSON.parse(v)}catch{return {text:v}}
+}
+async function tool(name,args={}){const resp=await request('tools/call',{name,arguments:args});const r=resp?.result??resp;if(r?.isError)throw new Error(r?.content?.[0]?.text||'Tool failed');return readToolResponse(resp)}
+function paintList(){
+ const q=$('filter').value.toLowerCase().trim();const list=$('session-list');list.replaceChildren();
+ const visible=state.sessions.filter(s=>[s.title,s.flavor,s.path,s.project].join(' ').toLowerCase().includes(q));
+ if(!visible.length){list.append(text('div','No matching sessions.','empty'));return}
+ for(const s of visible){const btn=document.createElement('button');btn.type='button';btn.className='agent'+(s.id===state.selected?' active':'');const dot=text('span','','dot'+(s.thinking?' thinking':s.active?' on':''));dot.setAttribute('aria-hidden','true');btn.append(dot);const body=document.createElement('div');body.style.minWidth='0';body.append(text('div',s.title||'(untitled session)','agentname'));body.append(text('div',[s.flavor||'agent',s.project||'',s.path||''].filter(Boolean).join(' · '),'meta'));btn.append(body);btn.addEventListener('click',()=>select(s.id));list.append(btn)}
+}
+function paintStats(){ $('total').textContent=state.sessions.length;$('active').textContent=state.sessions.filter(s=>s.active).length;$('pending').textContent=state.sessions.reduce((n,s)=>n+(Number(s.pendingRequestsCount)||0),0);paintList() }
+function sectionTitle(value){return text('div',value,'label')}
+function eventView(e){const el=document.createElement('article');el.className='event';el.append(text('strong',(e.event||e.kind||e.role||'event').replaceAll('_',' ')));if(e.toolName)el.append(text('div',`Tool: ${e.toolName}`,'info'));let content=e.text??e.output??e.input??'';if(typeof content==='object')content=JSON.stringify(content,null,2);el.append(text('pre',truncate(content,1600)));return el}
+async function select(id){state.selected=id;paintList();const detail=$('details');detail.replaceChildren(text('div','Loading session evidence…','empty'));const s=state.sessions.find(x=>x.id===id);$('selected-badge').textContent=s?.flavor||'Agent';
+ try{const [meta,history,changes]=await Promise.all([tool('get_session',{session_id:id}),tool('read_session_messages',{session_id:id,limit:40,max_chars_per_event:1000}),tool('get_session_changes',{session_id:id})]);if(state.selected!==id)return;
+ detail.replaceChildren();detail.append(text('div',s?.title||id,'detail-name'));detail.append(text('div',`${id} · ${s?.path||'No workspace path'}`,'meta'));
+ const todos=meta?.session?.todos||[];if(todos.length){detail.append(sectionTitle('Session todos'));for(const task of todos.slice(0,12))detail.append(text('div',`• ${task.text||task.title||JSON.stringify(task)} (${task.status||'unknown'})`,'line'))}
+ detail.append(sectionTitle('Git workspace'));const git=changes?.workingTree||{};detail.append(text('pre',truncate(git.output||git.error||'Git status not available',2200),'event'));
+ detail.append(sectionTitle('Recent agent activity'));const events=(history?.messages||[]).slice(-25);if(!events.length)detail.append(text('div','No messages in latest window.','empty'));for(const e of events)detail.append(eventView(e));
+ if(history?.page?.hasMore)detail.append(text('div','Older history exists; ask ChatGPT to inspect earlier pages.','meta'));
+ }catch(err){detail.replaceChildren(text('div',`Unable to read the session: ${err.message}`,'empty error'))}}
+async function refresh(){if(state.loading)return;state.loading=true;$('load-status').textContent='Refreshing…';$('refresh').disabled=true;try{const out=await tool('list_sessions',{limit:100});state.sessions=out.sessions||[];paintStats();targetOptions();$('load-status').textContent=`${state.sessions.length} found`;if(state.selected&&state.sessions.some(s=>s.id===state.selected))await select(state.selected);$('updated').textContent='Updated '+new Date().toLocaleTimeString()+' · HAPI Hub snapshots; validate claims with code/tests.';}catch(err){$('load-status').textContent='Error';$('session-list').replaceChildren(text('div',`Failed to load: ${err.message}`,'empty error'));}finally{state.loading=false;$('refresh').disabled=false}}
+$('refresh').addEventListener('click',()=>{refresh();refreshTasks();});$('filter').addEventListener('input',paintList);
+
+const mutationKeys=new Map();
+const lines=id=>$(id).value.split('\n').map(x=>x.trim()).filter(Boolean);
+function addOption(select,value,label){const o=document.createElement('option');o.value=value;o.textContent=label;select.append(o)}
+function showTaskOutput(value){$('task-output').hidden=false;$('task-output').textContent=typeof value==='string'?value:JSON.stringify(value,null,2)}
+function targetOptions(){
+ for(const [id,role] of [['task-target','execute'],['review-target','review']]){
+  const select=$(id),old=select.value;select.replaceChildren();
+  addOption(select,'','Choose a session');
+  for(const target of state.policy?.authorized_targets||[]){
+   if(!target.roles.includes(role))continue;
+   const session=state.sessions.find(s=>s.id===target.session_id);
+   addOption(select,target.session_id,`${session?.title||target.session_id} | ${target.machine_id} | ${target.workspace}`);
+  }
+  if([...select.options].some(o=>o.value===old))select.value=old;
+ }
+}
+async function refreshTasks(){
+ try{
+  const [policy,data]=await Promise.all([tool('get_capabilities'),tool('list_tasks',{limit:30})]);
+  state.policy=policy;state.tasks=data.tasks||[];targetOptions();
+  const enabled=policy.writes_enabled===true&&policy.authorized_targets?.length>0;
+  $('write-state').textContent=enabled?'Authorized dispatch is enabled for the pinned sessions below. Hub acceptance, execution and task acceptance are separate states.':'Read-only until the operator enables writes and configures authorized sessions on the host.';
+  $('send-button').disabled=!enabled;$('review-button').disabled=!enabled;
+  const list=$('task-list');list.replaceChildren();const source=$('review-source'),old=source.value;source.replaceChildren();addOption(source,'','Choose an execution task');
+  if(!state.tasks.length)list.append(text('div','No tasks have been dispatched by this connector.','task-empty'));
+  for(const t of state.tasks){
+   if(t.kind==='execution')addOption(source,t.task_id,`${t.title} | ${t.task_id.slice(0,8)}`);
+   const row=document.createElement('div');row.className='task-row';const info=document.createElement('div');
+   info.append(text('div',t.title,'task-title'));info.append(text('div',`${t.kind} | delivery: ${t.delivery} | decision: ${t.decision?.verdict||'not reviewed'} | ${t.task_id.slice(0,8)}`,'meta'));row.append(info);
+   const actions=document.createElement('div');actions.className='task-actions';
+   const inspect=text('button','Inspect','refresh');inspect.type='button';inspect.onclick=async()=>{try{showTaskOutput(await tool('get_task',{task_id:t.task_id,include_recent_messages:true}));await request('ui/update-model-context',{structuredContent:{selectedTaskId:t.task_id,selectedSessionId:t.session_id}}).catch(()=>{});}catch(e){showTaskOutput(e.message)}};actions.append(inspect);
+   const decide=text('button','Record decision','refresh');decide.type='button';decide.disabled=!enabled;decide.onclick=async()=>{try{const v=await tool('get_task',{task_id:t.task_id});state.decisionTask=v.task;$('decision-title').textContent=`Decision: ${v.task.title}`;$('decision-form').hidden=false;$('decision-confirm').checked=false;$('decision-form').scrollIntoView({block:'nearest'});}catch(e){showTaskOutput(e.message)}};actions.append(decide);row.append(actions);list.append(row);
+  }
+  if([...source.options].some(o=>o.value===old))source.value=old;
+  if(data.has_more)list.append(text('div','Only the latest 30 ledger entries are shown.','task-empty'));
+ }catch(e){$('write-state').textContent=`Cannot load dispatch policy: ${e.message}`;$('send-button').disabled=true;$('review-button').disabled=true;}
+}
+async function mutateWithKey(name,args,button){
+ const identity=JSON.stringify({name,...args});
+ const request_id=mutationKeys.get(identity)||crypto.randomUUID();mutationKeys.set(identity,request_id);
+ button.disabled=true;
+ try{const result=await tool(name,{...args,request_id,confirm:true});showTaskOutput(result);await refreshTasks();}
+ catch(e){showTaskOutput(`Request ${request_id}: ${e.message}\nDo not create a new task blindly. Submitting the unchanged form reuses this request ID.`);}
+ finally{button.disabled=state.policy?.writes_enabled!==true;}
+}
+$('refresh-tasks').addEventListener('click',refreshTasks);
+$('send-form').addEventListener('submit',async e=>{e.preventDefault();await mutateWithKey('send_task',{session_id:$('task-target').value,title:$('task-title').value,instructions:$('task-instructions').value,acceptance_criteria:lines('task-criteria'),expected_outputs:lines('task-outputs')},$('send-button'));});
+$('review-form').addEventListener('submit',async e=>{e.preventDefault();const author=state.tasks.find(t=>t.task_id===$('review-source').value);if(author?.session_id===$('review-target').value){showTaskOutput('Choose a reviewer session different from the author.');return;}await mutateWithKey('request_review',{source_task_id:$('review-source').value,reviewer_session_id:$('review-target').value,focus:$('review-focus').value,evidence_refs:lines('review-evidence')},$('review-button'));});
+$('decision-form').addEventListener('submit',async e=>{e.preventDefault();const button=e.submitter;button.disabled=true;try{const t=state.decisionTask;const result=await tool('record_task_decision',{task_id:t.task_id,expected_revision:t.revision,verdict:$('decision-verdict').value,rationale:$('decision-rationale').value,evidence_refs:lines('decision-evidence'),confirm:$('decision-confirm').checked});showTaskOutput(result);$('decision-form').hidden=true;await refreshTasks();}catch(err){showTaskOutput(err.message);}finally{button.disabled=false;}});
+
+window.addEventListener('message',event=>{if(event.source!==window.parent)return;const msg=event.data;if(!msg||msg.jsonrpc!=='2.0')return;if(typeof msg.id==='number'){const p=outstanding.get(msg.id);if(!p)return;outstanding.delete(msg.id);clearTimeout(p.timer);msg.error?p.reject(new Error(msg.error.message||'Host RPC error')):p.resolve(msg.result);return;}if(msg.method==='ui/notifications/tool-result'){const val=readToolResponse(msg.params);if(Array.isArray(val?.sessions)){state.sessions=val.sessions;paintStats();targetOptions();$('load-status').textContent=`${state.sessions.length} found`;}}});
+try{await request('ui/initialize',{appInfo:{name:'hapi-agent-console',version:'0.3.0'},appCapabilities:{},protocolVersion:'2026-01-26'});notify('ui/notifications/initialized');state.bridge=true;await Promise.all([refresh(),refreshTasks()])}catch(err){$('load-status').textContent='Unavailable';$('session-list').replaceChildren(text('div',`MCP Apps bridge unavailable: ${err.message}`,'empty error'))}
+</script>
+</body>
+</html>

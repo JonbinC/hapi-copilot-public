@@ -1,0 +1,10 @@
+{
+  "name": "hapi-copilot", "version": "0.4.1", "private": false,
+  "description": "A model-neutral personal operator for HAPI, exposed through MCP.",
+  "type": "module", "license": "MIT", "engines": {"node": ">=22.16.0"},
+  "scripts": {
+    "start": "node server/index.mjs", "test": "node --test tests/*.test.mjs",
+    "test:legacy": "node --test tests/legacy/*.test.mjs", "check": "node scripts/check.mjs",
+    "smoke": "node scripts/smoke.mjs", "test:all": "npm run check && npm test && npm run test:legacy"
+  }
+}
