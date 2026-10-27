@@ -22,7 +22,7 @@ Tools with shared names such as `get_capabilities`, `get_session`, `list_session
 
 ## Source of truth
 
-Use a reviewed private Git commit as the bridge source of truth. The package version comes from `package.json`. `get_integration_status.bridge.code_revision` is populated only when the running module path contains an exact 40-hex `/releases/<SHA>/` directory segment; `revision_source: "release_directory_name"` describes that naming convention and is not cryptographic attestation. Otherwise revision fields are `null`. Do not redeploy an older Plugin Creator archive over new on-machine fixes. Updating code does not update ChatGPT's cached tool schema; reconnect the MCP client after changing the server to rediscover schemas.
+Use a reviewed, pinned public repository commit as the bridge source of truth. The package version comes from `package.json`. `get_integration_status.bridge.code_revision` is populated only when the running module path contains an exact 40-hex `/releases/<SHA>/` directory segment; `revision_source: "release_directory_name"` describes that naming convention and is not cryptographic attestation. Otherwise revision fields are `null`. Do not redeploy an older Plugin Creator archive over new on-machine fixes. Updating code does not update ChatGPT's cached tool schema; reconnect the MCP client after changing the server to rediscover schemas.
 
 ## Rollback
 

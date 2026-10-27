@@ -42,7 +42,7 @@ HAPI Copilot acts as a model-neutral personal operator over your existing self-h
 
 - **Node.js**: `v22.16.0` or higher (Node 24 LTS recommended for deployment).
 - **Runtime Dependencies**: Zero external npm dependencies. Uses standard Node.js built-ins (`node:sqlite`, `node:crypto`, `node:http`, etc.).
-- **Upstream HAPI**: Unmodified official HAPI (v0.30.7 is the documented baseline; check actual capabilities on other versions). HAPI Copilot does not patch HAPI or require modified binaries.
+- **Upstream HAPI**: Unmodified official HAPI (v0.30.7 is the documented protocol baseline only; check actual capabilities on other versions, whose compatibility is not established). HAPI Copilot does not patch HAPI or require modified binaries.
 - **Target OS**: Linux (x86_64 or ARM64) or macOS. File operations and native terminal helpers target POSIX environments with Python 3 available on the target runner.
 
 ---
