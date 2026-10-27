@@ -1,6 +1,6 @@
 # Self-Hosted HAPI and HAPI Copilot Installation Guide
 
-This guide describes how to install, configure, and operate HAPI Copilot with a self-hosted HAPI instance, including standard stdio MCP operation and an optional HTTPS OAuth / Bearer MCP gateway reference architecture.
+This guide describes how to install, configure, and operate HAPI Copilot with a self-hosted HAPI instance, including standard stdio MCP operation and the limits of remote access.
 
 ---
 
@@ -11,9 +11,9 @@ HAPI Copilot acts as a model-neutral personal operator over your existing self-h
 ```text
   +-----------------------------------------------------------+
   |              MCP Host / AI Assistant                      |
-  |  (Claude Desktop, Cursor, or ChatGPT via Private Tunnel)   |
+  |  (local MCP client, or a separately secured bridge)   |
   +-----------------------------+-----------------------------+
-                                | JSON-RPC (stdio or HTTPS)
+                                | JSON-RPC (stdio)
                                 v
   +-----------------------------------------------------------+
   |                   HAPI Copilot Bridge                     |
@@ -42,7 +42,7 @@ HAPI Copilot acts as a model-neutral personal operator over your existing self-h
 
 - **Node.js**: `v22.16.0` or higher (Node 24 LTS recommended for deployment).
 - **Runtime Dependencies**: Zero external npm dependencies. Uses standard Node.js built-ins (`node:sqlite`, `node:crypto`, `node:http`, etc.).
-- **Upstream HAPI**: Unmodified official HAPI (`v0.30.7`+). HAPI Copilot does not patch HAPI or require modified binaries.
+- **Upstream HAPI**: Unmodified official HAPI (v0.30.7 is the documented baseline; check actual capabilities on other versions). HAPI Copilot does not patch HAPI or require modified binaries.
 - **Target OS**: Linux (x86_64 or ARM64) or macOS. File operations and native terminal helpers target POSIX environments with Python 3 available on the target runner.
 
 ---
@@ -62,7 +62,7 @@ npm run smoke
 
 ### 3.2 Environment Configuration
 
-Create a private environment file `.env` (or set environment variables in your service manager):
+Create a private environment file `.env` in the repository, or set these variables in your service manager. Replace the example paths with paths you have created and can access; copy `config/observer.example.json` to the policy path first. Start with observer mode:
 
 ```sh
 # URL of your self-hosted HAPI Hub REST API
@@ -75,15 +75,17 @@ HAPI_ACCESS_TOKEN_FILE=/etc/hapi-copilot/access-token
 HAPI_COPILOT_STATE_DIR=/var/lib/hapi-copilot/state
 
 # Policy configuration file path
-HAPI_OPERATOR_POLICY_FILE=/etc/hapi-copilot/policy.json
+HAPI_OPERATOR_POLICY_FILE=/etc/hapi-copilot/observer.json
 ```
 
-Ensure credential and state directory permissions are strictly enforced:
+Create the token file and state directory at the chosen paths and restrict access. For the example paths (when owned by your user):
 
 ```sh
 chmod 700 /var/lib/hapi-copilot/state
 chmod 600 /etc/hapi-copilot/access-token
 ```
+
+Node does not automatically read `.env`, and this project has no dotenv dependency. From the repository directory, use `node --env-file=.env server/index.mjs` (supported by the required Node 22+), or explicitly export the variables before running `node server/index.mjs`. Secure the `.env` file as well (`chmod 600 .env`). MCP clients must receive the variables through their own configuration or use the `--env-file` argument with an absolute path.
 
 ### 3.3 Operator Policy Selection
 
@@ -119,7 +121,7 @@ Stdio MCP is the standard and most secure transport because it avoids exposing n
         "HAPI_API_URL": "http://127.0.0.1:3006",
         "HAPI_ACCESS_TOKEN_FILE": "/etc/hapi-copilot/access-token",
         "HAPI_COPILOT_STATE_DIR": "/var/lib/hapi-copilot/state",
-        "HAPI_OPERATOR_POLICY_FILE": "/etc/hapi-copilot/owner.json"
+        "HAPI_OPERATOR_POLICY_FILE": "/etc/hapi-copilot/observer.json"
       }
     }
   }
@@ -128,66 +130,13 @@ Stdio MCP is the standard and most secure transport because it avoids exposing n
 
 ---
 
-## 5. Optional HTTPS OAuth / Bearer MCP Gateway Reference
+## 5. Remote clients and legacy HTTP
 
-For remote MCP hosts (such as cloud assistant connectors) that require an HTTP(S) endpoint, HAPI Copilot provides an authenticated HTTP transport reference (`server/legacy/remote.mjs`).
+The public v0.4.1 modern service exposes its 53 offline-discovered MCP tools through `node server/index.mjs` over stdio. For a remote client such as the ChatGPT webpage, the owner must separately set up and secure an OAuth-compatible HTTPS MCP bridge or gateway that actually connects to this modern stdio service. Such a bridge is not bundled or verified here. TLS termination or a reverse proxy alone does not implement OAuth or authenticate clients.
 
-### Security Architecture
+`server/legacy/remote.mjs` runs the older v0.3 server with a limited tool set and static Bearer-token authentication. It does not implement OAuth and is not the 53-tool modern service. Its token-separation check compares environment variables; it does not compare the contents of `HAPI_ACCESS_TOKEN_FILE`. Do not rely on that check to establish credential separation. This guide does not provide a public Internet exposure recipe.
 
-```text
-[ Remote MCP Client ]
-         |
-         | HTTPS (TLS 1.3) with Bearer token / OAuth
-         v
-[ Reverse Proxy: Caddy / Nginx / Cloudflare Access ]
-         | (Terminates TLS, enforces WAF / rate limiting / OAuth verification)
-         v
-[ Local Loopback: 127.0.0.1:8787/mcp ]
-         |
-[ HAPI Copilot HTTP Server (server/legacy/remote.mjs) ]
-         | - Constant-time bearer token check (MCP_GATEWAY_TOKEN >= 32 chars)
-         | - Rejects browser origins (CORS disabled to prevent CSRF)
-         | - Enforces payload size limits (<= 1MB)
-         v
-[ Internal HAPI Hub: 127.0.0.1:3006 ]
-```
-
-### Security Rules for Gateway Operation
-
-1. **Strict Credential Separation**:
-   `MCP_GATEWAY_TOKEN` must be a high-entropy secret (at least 32 characters) completely distinct from `HAPI_ACCESS_TOKEN`. The gateway rejects startup if the gateway secret matches any HAPI access token.
-2. **Loopback Only**:
-   The HTTP server binds to `127.0.0.1` by default and refuses non-loopback binding unless explicitly overridden. All public access must pass through a TLS-terminating reverse proxy.
-3. **No Live Token Exposure**:
-   No upstream HAPI tokens, user credentials, or machine SSH keys are ever returned to the MCP client or exposed via HTTP headers.
-4. **No Direct Browser Access**:
-   Requests with an `Origin` header are blocked (HTTP 403) to prevent unauthorized browser-side requests.
-
-### Gateway Launch Example
-
-```sh
-export HAPI_API_URL="http://127.0.0.1:3006"
-export HAPI_ACCESS_TOKEN="<internal-hapi-token>"
-export MCP_LISTEN_HOST="127.0.0.1"
-export MCP_LISTEN_PORT="8787"
-export MCP_GATEWAY_TOKEN="<random-secure-token-at-least-32-chars>"
-
-node server/legacy/remote.mjs
-```
-
-### Reverse Proxy (Caddy) Example with OAuth / Token Auth
-
-```caddy
-mcp.example.com {
-    tls internal  # Or standard Let's Encrypt certificates
-
-    # Enforce OAuth proxy or forward bearer token
-    reverse_proxy 127.0.0.1:8787 {
-        header_up Host {host}
-        header_up X-Real-IP {remote}
-    }
-}
-```
+Begin with observer mode. Use owner mode only after verifying that the entire connection is private and accessible exclusively to the intended single user; a policy acknowledgement is not identity verification.
 
 ---
 

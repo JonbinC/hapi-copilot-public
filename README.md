@@ -4,7 +4,7 @@
 
 Tell your assistant what you want. It can discover your machines, choose any supported agent and model, create or resume sessions, send prompts, inspect evidence, run native terminal commands, work on files, and coordinate a task graph. Agent client, model, task role and machine are separate choices. There is no mandated "AGY executes / Codex reviews" pipeline.
 
-> **Release Edition Notice:** This public repository is a sanitized open edition based on the verified stable **v0.4.1** codebase. It is explicitly labeled as a v0.4.1-based release and **does not claim v0.4.2 parity** or include unreleased private development features. All private infrastructure references, credentials, hostnames, tailscale IPs, and personal project details have been thoroughly sanitized. See [verification](docs/VERIFICATION.md).
+> **Release Edition Notice:** This public open edition is based on the stable **v0.4.1** codebase and **does not claim v0.4.2 parity** or include unreleased private development features. The repository was reviewed with no obvious known secrets found; this is not a guarantee that none remain. See [verification](docs/VERIFICATION.md).
 
 > **Breaking AGY dispatch requirement:** `dispatch_task` on an AGY session requires `required_permission_mode` (`request-review` for intentional review or `always-proceed` for authorized coding). The bridge reads the actual session first, then validates and compares the mode immediately before sending. Missing, unsupported, or mismatched modes are blocked before the message is sent. Codex/Cursor and other agents keep their existing dispatch behavior. `send_session_message` remains backward compatible and accepts the same precondition optionally.
 
@@ -13,7 +13,7 @@ Tell your assistant what you want. It can discover your machines, choose any sup
 ```text
 Your assistant / MCP host
           |
-  existing private MCP tunnel / stdio / HTTPS gateway
+  stdio (or a separately secured bridge)
           |
   HAPI Copilot (this repository)
           | REST + native /terminal client namespace
@@ -70,7 +70,7 @@ node server/index.mjs
 
 `config/observer.example.json` is the conservative default. To intentionally enable personal owner control, copy `config/owner.example.json` to an **operator-owned** configuration path and point `HAPI_OPERATOR_POLICY_FILE` at it. Copying the owner policy is an explicit trust decision for a **single-owner, private connection**; this package does not verify a ChatGPT user's identity independently.
 
-See [docs/INSTALLATION.md](docs/INSTALLATION.md) for full setup instructions, including stdio MCP configuration and the optional HTTPS OAuth / Bearer MCP gateway reference architecture.
+See [docs/INSTALLATION.md](docs/INSTALLATION.md) for full setup instructions, including stdio MCP configuration and the limitations of remote access. The modern 53-tool service is stdio only; an OAuth-compatible HTTPS gateway for ChatGPT is not bundled or verified here.
 
 ## Freedom and boundaries
 
@@ -89,6 +89,6 @@ Normal development operations use standing owner authorization, not a per-sessio
 
 ## License and inspiration
 
-New source: MIT. The compatibility layer comes from the previous user-owned HAPI Agent Console source package. HAPI is a separate upstream project; WebCodex was studied as an architectural reference. Neither project's implementation or UI is vendored. See [third-party notes](THIRD_PARTY_NOTICES.md).
+New source: MIT. The compatibility layer comes from the previous user-owned HAPI Agent Console source package. HAPI is a separate AGPL-licensed upstream project; WebCodex was studied as an architectural reference. Neither project's implementation or UI is assumed to be vendored. These notes are not a legal audit. See [third-party notes](THIRD_PARTY_NOTICES.md).
 
 Chinese delivery guide: [中文接入说明](docs/QUICKSTART.zh-CN.md).
